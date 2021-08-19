@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: '9'
           cache: 'npm'
-      - name: Test
+      - name: Install package
         run: npm install
+      - name: Test
         run: npm test
