@@ -1,7 +1,7 @@
 {
   "name": "backend-coding-test",
   "version": "1.0.0",
-  "description": "A coding assessment for Xendit backend interviews",
+  "description": "A coding assessment for Xendit backend interview",
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha",
