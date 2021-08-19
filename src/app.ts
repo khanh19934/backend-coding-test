@@ -1,13 +1,12 @@
-"use strict";
+import express from "express";
+import swaggerUi from "swagger-ui-express";
+import bodyParser from "body-parser";
+import swaggerDocument from "../swagger.json";
 
-const express = require("express");
 const app = express();
-const swaggerUi = require("swagger-ui-express");
-const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
-const swaggerDocument = require("../swagger.json");
 
-module.exports = (db) => {
+const startServer = (db: any) => {
   app.get("/health", (req, res) => res.send("Healthy"));
 
   app.post("/rides", jsonParser, (req, res) => {
@@ -79,7 +78,7 @@ module.exports = (db) => {
     const result = db.run(
       "INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)",
       values,
-      function (err) {
+      function (err: unknown) {
         if (err) {
           return res.send({
             error_code: "SERVER_ERROR",
@@ -89,8 +88,9 @@ module.exports = (db) => {
 
         db.all(
           "SELECT * FROM Rides WHERE rideID = ?",
+          // @ts-ignore
           this.lastID,
-          function (err, rows) {
+          function (err: unknown, rows: unknown[]) {
             if (err) {
               return res.send({
                 error_code: "SERVER_ERROR",
@@ -106,7 +106,7 @@ module.exports = (db) => {
   });
 
   app.get("/rides", (req, res) => {
-    db.all("SELECT * FROM Rides", function (err, rows) {
+    db.all("SELECT * FROM Rides", function (err: unknown, rows: unknown[]) {
       if (err) {
         return res.send({
           error_code: "SERVER_ERROR",
@@ -128,7 +128,7 @@ module.exports = (db) => {
   app.get("/rides/:id", (req, res) => {
     db.all(
       `SELECT * FROM Rides WHERE rideID='${req.params.id}'`,
-      function (err, rows) {
+      function (err: unknown, rows: unknown[]) {
         if (err) {
           return res.send({
             error_code: "SERVER_ERROR",
@@ -152,3 +152,5 @@ module.exports = (db) => {
 
   return app;
 };
+
+export default startServer;
