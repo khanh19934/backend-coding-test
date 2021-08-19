@@ -1,6 +1,6 @@
 name: Xendit Coding Excercise CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   run-tests:
@@ -8,6 +8,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup node
         uses: actions/setup-node@v2
         with:
           node-version: '9'
