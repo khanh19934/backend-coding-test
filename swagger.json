@@ -45,6 +45,7 @@
           "200": {
             "description": "OK",
             "schema": {
+              "type": "array",
               "$ref": "#/definitions/Rides"
             }
           },
@@ -59,7 +60,60 @@
       "post": {
         "tags": ["Rides"],
         "summary": "API Create Rides",
-        "responses": {}
+        "parameters": [
+          {
+            "name": "ride",
+            "in": "body",
+            "description": "Ride information that we want to create",
+            "schema": {
+              "$ref": "#/definitions/RideParametter"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Ride"
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/GeneralError"
+            }
+          }
+        }
+      }
+    },
+    "/rides/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID of ride that we want to find",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "tags": ["Rides"],
+        "summary": "API Get Deatil of Ride",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Ride"
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/GeneralError"
+            }
+          }
+        }
       }
     }
   },
@@ -72,17 +126,24 @@
     },
     "Ride": {
       "properties": {
-        "startLat": {
+        "rideID": {
           "type": "string"
+        },
+        "startLat": {
+          "type": "number",
+          "format": "double"
         },
         "startLong": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         },
         "endLat": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         },
         "endLong": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         },
         "riderName": {
           "type": "string"
@@ -91,6 +152,9 @@
           "type": "string"
         },
         "driverVehicle": {
+          "type": "string"
+        },
+        "created": {
           "type": "string"
         }
       }
@@ -105,6 +169,35 @@
           "type": "string"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "RideParametter": {
+      "properties": {
+        "start_lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "start_long": {
+          "type": "number",
+          "format": "double"
+        },
+        "end_lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "end_long": {
+          "type": "number",
+          "format": "double"
+        },
+        "rider_name": {
+          "type:": "string"
+        },
+        "driver_name": {
+          "type:": "string"
+        },
+        "driver_vehicle": {
           "type": "string"
         }
       }
