@@ -1,0 +1,113 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Backend Coding Test API Document",
+    "description": "Document for API of this project",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8010",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "API_Health",
+      "description": "API for health check"
+    },
+    {
+      "name": "Rides",
+      "description": "API for rides"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["API_Health"],
+        "summary": "API Health Check",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Health"
+            }
+          }
+        }
+      }
+    },
+
+    "/rides": {
+      "get": {
+        "tags": ["Rides"],
+        "summary": "API Get Rides",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Rides"
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/GeneralError"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Rides"],
+        "summary": "API Create Rides",
+        "responses": {}
+      }
+    }
+  },
+  "schemes": ["http"],
+  "consumes": ["application/json", "text"],
+  "produces": ["application/json", "text"],
+  "definitions": {
+    "Health": {
+      "type": "string"
+    },
+    "Ride": {
+      "properties": {
+        "startLat": {
+          "type": "string"
+        },
+        "startLong": {
+          "type": "string"
+        },
+        "endLat": {
+          "type": "string"
+        },
+        "endLong": {
+          "type": "string"
+        },
+        "riderName": {
+          "type": "string"
+        },
+        "driverName": {
+          "type": "string"
+        },
+        "driverVehicle": {
+          "type": "string"
+        }
+      }
+    },
+    "Rides": {
+      "type": "array",
+      "$ref": "#/definitions/Ride"
+    },
+    "GeneralError": {
+      "properties": {
+        "error_code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
