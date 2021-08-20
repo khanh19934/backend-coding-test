@@ -12,12 +12,43 @@ describe('API tests', () => {
   before(done => {
     db.serialize(
       // @ts-ignore
-      (err: unknown): void => {
+      async (err: unknown): void => {
         if (err) {
           return done(err);
         }
 
         buildSchemas(db);
+
+        const testData = {
+          rider_name: 'riderName',
+          driver_name: 'driverName',
+          driver_vehicle: 'drvierVehicle',
+          start_lat: 40,
+          start_long: -100,
+          end_lat: 30,
+          end_long: 100
+        };
+
+        const values = [
+          testData.start_lat,
+          testData.start_long,
+          testData.end_lat,
+          testData.end_long,
+          testData.rider_name,
+          testData.driver_name,
+          testData.driver_vehicle
+        ];
+        const promise = [];
+        for (var i = 0; i < 50; i++) {
+          promise.push(
+            db.run(
+              'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              values
+            )
+          );
+        }
+
+        await Promise.all(promise);
 
         done();
       }
@@ -39,10 +70,98 @@ describe('API tests', () => {
         .get('/rides')
         .expect(200, done);
     });
+
+    it('should return all record if not provide pagination query', done => {
+      request(app)
+        .get('/rides')
+        .expect(200)
+        .end((err, res) => {
+          if (err) done(err);
+          expect(res.body.length).to.eql(50);
+          done();
+        });
+    });
+
+    it('should return correctly with pagination query', done => {
+      const querySetup = [
+        {
+          limit: 20,
+          page: 2,
+          expectNumberItem: 20
+        },
+
+        {
+          limit: 50,
+          page: 1,
+          expectNumberItem: 50
+        },
+        {
+          limit: 15,
+          page: 4,
+          expectNumberItem: 5
+        },
+        {
+          limit: 0,
+          page: 0,
+          expectNumberItem: 50
+        },
+        {
+          limit: null,
+          page: null,
+          expectNumberItem: 50
+        },
+        {
+          limit: undefined,
+          page: undefined,
+          expectNumberItem: 50
+        }
+      ];
+
+      querySetup.forEach(item => {
+        request(app)
+          .get('/rides')
+          .query({ limit: item.limit, page: item.page })
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body.length).to.eql(item.expectNumberItem);
+          });
+      });
+
+      done();
+    });
+
+    it('should return error if provide invalid pagination query', done => {
+      const querySetup = [
+        {
+          limit: 'asd',
+          page: 'asd'
+        },
+        {
+          limit: true,
+          page: false
+        }
+      ];
+
+      querySetup.forEach(item => {
+        request(app)
+          .get('/rides')
+          .query({ limit: item.limit, page: item.page })
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body).to.eql({
+              error_code: 'SERVER_ERROR',
+              message: 'Invalid query params'
+            });
+            // expect(true).to.eql(true);
+          });
+      });
+
+      done();
+    });
   });
 
   describe('GET /rides/{id}', () => {
-    it('should call api rides deatil succesful', done => {
+    it('should call api rides detail succesful', done => {
       request(app)
         .get('/rides/1')
         .expect(200, done);

@@ -106,7 +106,53 @@ const startServer = (db: any) => {
   });
 
   app.get('/rides', (req, res) => {
-    db.all('SELECT * FROM Rides', function(err: unknown, rows: unknown[]) {
+    let limit: number = parseInt(req.query.limit as string);
+    let page: number = parseInt(req.query.page as string);
+
+    // TODO: Refactor conditonal for check the query parameter type
+
+    if (!req.query.limit || !req.query.page) {
+      db.all(`SELECT * FROM Rides`, function(err: unknown, rows: unknown[]) {
+        if (err) {
+          return res.send({
+            error_code: 'SERVER_ERROR',
+            message: 'Unknown error'
+          });
+        }
+
+        if (rows.length === 0) {
+          return res.send({
+            error_code: 'RIDES_NOT_FOUND_ERROR',
+            message: 'Could not find any rides'
+          });
+        }
+
+        res.send(rows);
+      });
+      return;
+    }
+
+    if (Number.isNaN(limit) || Number.isNaN(page)) {
+      return res.send({
+        error_code: 'SERVER_ERROR',
+        message: 'Invalid query params'
+      });
+    }
+
+    if (parseInt(req.query.limit as string) === 0) {
+      limit = 50;
+    }
+
+    if (parseInt(req.query.page as string) === 0) {
+      page = 1;
+    }
+
+    const offset = (page - 1) * limit;
+
+    db.all(`SELECT * FROM Rides LIMIT ${limit} OFFSET ${offset}`, function(
+      err: unknown,
+      rows: unknown[]
+    ) {
       if (err) {
         return res.send({
           error_code: 'SERVER_ERROR',
