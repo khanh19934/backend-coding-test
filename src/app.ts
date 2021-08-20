@@ -2,12 +2,14 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import bodyParser from 'body-parser';
 import swaggerDocument from '../swagger.json';
+import registerRoutes from './routes';
+import { Database } from 'sqlite3';
 
 const app = express();
 const jsonParser = bodyParser.json();
 
-const startServer = (db: any) => {
-  app.get('/health', (req, res) => res.send('Healthy'));
+const startServer = (db: Database) => {
+  registerRoutes(app, db);
 
   app.post('/rides', jsonParser, (req, res) => {
     const startLatitude = Number(req.body.start_lat);
@@ -31,12 +33,7 @@ const startServer = (db: any) => {
       });
     }
 
-    if (
-      endLatitude < -90 ||
-      endLatitude > 90 ||
-      endLongitude < -180 ||
-      endLongitude > 180
-    ) {
+    if (endLatitude < -90 || endLatitude > 90 || endLongitude < -180 || endLongitude > 180) {
       return res.send({
         error_code: 'VALIDATION_ERROR',
         message:
@@ -78,7 +75,7 @@ const startServer = (db: any) => {
     const result = db.run(
       'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
       values,
-      function(err: unknown) {
+      function (err: unknown) {
         if (err) {
           return res.send({
             error_code: 'SERVER_ERROR',
@@ -90,7 +87,7 @@ const startServer = (db: any) => {
           'SELECT * FROM Rides WHERE rideID = ?',
           // @ts-ignore
           this.lastID,
-          function(err: unknown, rows: unknown[]) {
+          function (err: unknown, rows: unknown[]) {
             if (err) {
               return res.send({
                 error_code: 'SERVER_ERROR',
@@ -106,30 +103,7 @@ const startServer = (db: any) => {
   });
 
   app.get('/rides', (req, res) => {
-    db.all('SELECT * FROM Rides', function(err: unknown, rows: unknown[]) {
-      if (err) {
-        return res.send({
-          error_code: 'SERVER_ERROR',
-          message: 'Unknown error'
-        });
-      }
-
-      if (rows.length === 0) {
-        return res.send({
-          error_code: 'RIDES_NOT_FOUND_ERROR',
-          message: 'Could not find any rides'
-        });
-      }
-
-      res.send(rows);
-    });
-  });
-
-  app.get('/rides/:id', (req, res) => {
-    db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function(
-      err: unknown,
-      rows: unknown[]
-    ) {
+    db.all('SELECT * FROM Rides', function (err: unknown, rows: unknown[]) {
       if (err) {
         return res.send({
           error_code: 'SERVER_ERROR',
