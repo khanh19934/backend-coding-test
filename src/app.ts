@@ -1,15 +1,15 @@
-import express from "express";
-import swaggerUi from "swagger-ui-express";
-import bodyParser from "body-parser";
-import swaggerDocument from "../swagger.json";
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import bodyParser from 'body-parser';
+import swaggerDocument from '../swagger.json';
 
 const app = express();
 const jsonParser = bodyParser.json();
 
 const startServer = (db: any) => {
-  app.get("/health", (req, res) => res.send("Healthy"));
+  app.get('/health', (req, res) => res.send('Healthy'));
 
-  app.post("/rides", jsonParser, (req, res) => {
+  app.post('/rides', jsonParser, (req, res) => {
     const startLatitude = Number(req.body.start_lat);
     const startLongitude = Number(req.body.start_long);
     const endLatitude = Number(req.body.end_lat);
@@ -25,9 +25,9 @@ const startServer = (db: any) => {
       startLongitude > 180
     ) {
       return res.send({
-        error_code: "VALIDATION_ERROR",
+        error_code: 'VALIDATION_ERROR',
         message:
-          "Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively",
+          'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
       });
     }
 
@@ -38,30 +38,30 @@ const startServer = (db: any) => {
       endLongitude > 180
     ) {
       return res.send({
-        error_code: "VALIDATION_ERROR",
+        error_code: 'VALIDATION_ERROR',
         message:
-          "End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively",
+          'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'
       });
     }
 
-    if (typeof riderName !== "string" || riderName.length < 1) {
+    if (typeof riderName !== 'string' || riderName.length < 1) {
       return res.send({
-        error_code: "VALIDATION_ERROR",
-        message: "Rider name must be a non empty string",
+        error_code: 'VALIDATION_ERROR',
+        message: 'Rider name must be a non empty string'
       });
     }
 
-    if (typeof driverName !== "string" || driverName.length < 1) {
+    if (typeof driverName !== 'string' || driverName.length < 1) {
       return res.send({
-        error_code: "VALIDATION_ERROR",
-        message: "Rider name must be a non empty string",
+        error_code: 'VALIDATION_ERROR',
+        message: 'Rider name must be a non empty string'
       });
     }
 
-    if (typeof driverVehicle !== "string" || driverVehicle.length < 1) {
+    if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
       return res.send({
-        error_code: "VALIDATION_ERROR",
-        message: "Rider name must be a non empty string",
+        error_code: 'VALIDATION_ERROR',
+        message: 'Rider name must be a non empty string'
       });
     }
 
@@ -72,29 +72,29 @@ const startServer = (db: any) => {
       req.body.end_long,
       req.body.rider_name,
       req.body.driver_name,
-      req.body.driver_vehicle,
+      req.body.driver_vehicle
     ];
 
     const result = db.run(
-      "INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      'INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)',
       values,
-      function (err: unknown) {
+      function(err: unknown) {
         if (err) {
           return res.send({
-            error_code: "SERVER_ERROR",
-            message: "Unknown error",
+            error_code: 'SERVER_ERROR',
+            message: 'Unknown error'
           });
         }
 
         db.all(
-          "SELECT * FROM Rides WHERE rideID = ?",
+          'SELECT * FROM Rides WHERE rideID = ?',
           // @ts-ignore
           this.lastID,
-          function (err: unknown, rows: unknown[]) {
+          function(err: unknown, rows: unknown[]) {
             if (err) {
               return res.send({
-                error_code: "SERVER_ERROR",
-                message: "Unknown error",
+                error_code: 'SERVER_ERROR',
+                message: 'Unknown error'
               });
             }
 
@@ -105,19 +105,19 @@ const startServer = (db: any) => {
     );
   });
 
-  app.get("/rides", (req, res) => {
-    db.all("SELECT * FROM Rides", function (err: unknown, rows: unknown[]) {
+  app.get('/rides', (req, res) => {
+    db.all('SELECT * FROM Rides', function(err: unknown, rows: unknown[]) {
       if (err) {
         return res.send({
-          error_code: "SERVER_ERROR",
-          message: "Unknown error",
+          error_code: 'SERVER_ERROR',
+          message: 'Unknown error'
         });
       }
 
       if (rows.length === 0) {
         return res.send({
-          error_code: "RIDES_NOT_FOUND_ERROR",
-          message: "Could not find any rides",
+          error_code: 'RIDES_NOT_FOUND_ERROR',
+          message: 'Could not find any rides'
         });
       }
 
@@ -125,30 +125,30 @@ const startServer = (db: any) => {
     });
   });
 
-  app.get("/rides/:id", (req, res) => {
-    db.all(
-      `SELECT * FROM Rides WHERE rideID='${req.params.id}'`,
-      function (err: unknown, rows: unknown[]) {
-        if (err) {
-          return res.send({
-            error_code: "SERVER_ERROR",
-            message: "Unknown error",
-          });
-        }
-
-        if (rows.length === 0) {
-          return res.send({
-            error_code: "RIDES_NOT_FOUND_ERROR",
-            message: "Could not find any rides",
-          });
-        }
-
-        res.send(rows);
+  app.get('/rides/:id', (req, res) => {
+    db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function(
+      err: unknown,
+      rows: unknown[]
+    ) {
+      if (err) {
+        return res.send({
+          error_code: 'SERVER_ERROR',
+          message: 'Unknown error'
+        });
       }
-    );
+
+      if (rows.length === 0) {
+        return res.send({
+          error_code: 'RIDES_NOT_FOUND_ERROR',
+          message: 'Could not find any rides'
+        });
+      }
+
+      res.send(rows);
+    });
   });
 
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
   return app;
 };
