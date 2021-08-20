@@ -9,8 +9,7 @@
     "start:dev": "NODE_ENV=development webpack",
     "run:dev": "NODE_ENV=development nodemon build/server.bundle.js",
     "lint": "eslint . --ext .ts",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "prepare": "is-ci || husky install"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
   },
   "keywords": [
     "Xendit"
@@ -43,9 +42,8 @@
     "eslint": "^5.7.0",
     "eslint-plugin-no-smart-quotes": "^1.2.2",
     "husky": "^4.3.0",
-    "is-ci": "^3.0.0",
     "mocha": "^6.1.4",
-    "prettier": "^2.3.2",
+    "prettier": "^1.16.4",
     "supertest": "^4.0.2",
     "ts-loader": "^8.0.18",
     "ts-node": "^10.2.1",
