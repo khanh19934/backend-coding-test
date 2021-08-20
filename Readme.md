@@ -36,6 +36,9 @@ The goal of these exercises are to assess your proficiency in software engineeri
     ]
 ```
 
+- Can paginate by pass query params `limit` and `page` which `limit` is the numbers of items to return and `page` is the number of items to skip before starting to collect the result set.
+- URL should be like this `http://localhost:8010/rides?limit=10&page=1`
+
 2. API for create ride: `http://localhost:8010/rides` with method `POST`
 
 - The request body need to send to this API:
