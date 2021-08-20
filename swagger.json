@@ -41,6 +41,20 @@
       "get": {
         "tags": ["Rides"],
         "summary": "API Get Rides",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
