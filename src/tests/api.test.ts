@@ -1,12 +1,15 @@
 import request from 'supertest';
 import { expect } from 'chai';
 import sqlite from 'sqlite3';
+import express from 'express';
+
 import startServer from '../app';
 import buildSchemas from '../schemas';
 const sqlite3 = sqlite.verbose();
 const db = new sqlite3.Database(':memory:');
 
-const app = startServer(db);
+const expressApp = express();
+let app = startServer(expressApp, db);
 
 describe('API tests', () => {
   before(done => {
@@ -178,6 +181,48 @@ describe('API tests', () => {
       end_lat: 30,
       end_long: 100
     };
+
+    it('should return error if start latitude and longitude type not valid', done => {
+      const invalidStartLatLong = [
+        {
+          start_lat: null,
+          start_long: '90',
+          end_lat: '40',
+          end_long: false
+        },
+        {
+          start_lat: '100',
+          start_long: 90,
+          end_lat: 40,
+          end_long: 100
+        },
+        {
+          start_lat: '123a',
+          start_long: 130,
+          end_lat: 40,
+          end_long: 100
+        },
+        {
+          start_lat: '40',
+          start_long: -150,
+          end_lat: 40,
+          end_long: 100
+        }
+      ];
+
+      invalidStartLatLong.forEach(item => {
+        request(app)
+          .post('/rides')
+          .send({ ...payload, ...item })
+          .expect('Content-Type', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body).to.have.property('error_code', 'VALIDATION_ERROR');
+          });
+      });
+
+      done();
+    });
 
     it('should return error if start latitude and longitude not valid', done => {
       const invalidStartLatLong = [
