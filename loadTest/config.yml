@@ -1,0 +1,30 @@
+config:
+  target: 'http://localhost:8010'
+  payload:
+    path: '../payload/test.csv'
+    fields: ["startLat", "startLong", "endLat", "endLong","riderName", "driverName", "driverVehicle"]
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      rampTo: 100
+      name: Warm up
+  ensure:
+    p99: 50
+scenarios:
+  - name: 'Health Check'
+    flow:
+      - get:
+          url: '/health'
+  - name: 'Create Rides'
+    flow:
+      - post:
+          url: '/rides'
+          json: 
+            startLat: "{{startLat}}"
+            startLong: "{{startLong}}"
+            endLat: "{{endLat}}"
+            endLong: "{{endLong}}"
+            riderName: "{{riderName}}"
+            driverName: "{{driverName}}"
+            driverVehicle: "{{driverVehicle}}"
+

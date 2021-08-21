@@ -9,7 +9,8 @@
     "start:dev": "NODE_ENV=development webpack",
     "run:dev": "NODE_ENV=development nodemon build/server.bundle.js",
     "lint": "eslint . --ext .ts",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "test:load": "artillery run loadTest/config.yml"
   },
   "keywords": [
     "Xendit"
@@ -17,6 +18,7 @@
   "author": "Bo",
   "license": "ISC",
   "dependencies": {
+    "artillery": "^1.7.7",
     "body-parser": "^1.19.0",
     "chai": "^4.3.4",
     "express": "^4.16.4",
