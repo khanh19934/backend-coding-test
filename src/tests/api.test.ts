@@ -60,7 +60,7 @@ describe('API tests', () => {
 
   describe('GET /health', () => {
     it('should return health', done => {
-      request('http://localhost:8010')
+      request(app)
         .get('/health')
         .expect('Content-Type', /text/)
         .expect(200, done);
