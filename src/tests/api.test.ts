@@ -2,16 +2,17 @@ import request from 'supertest';
 import { expect } from 'chai';
 import sqlite from 'sqlite3';
 import express from 'express';
+
 import startServer from '../app';
 import buildSchemas from '../schemas';
 const sqlite3 = sqlite.verbose();
 const db = new sqlite3.Database(':memory:');
 
 const expressApp = express();
-const app = startServer(expressApp, db);
+let app = startServer(expressApp, db);
 
 describe('API tests', () => {
-  before((done) => {
+  before(done => {
     db.serialize(
       // @ts-ignore
       async (err: unknown): void => {
@@ -58,17 +59,22 @@ describe('API tests', () => {
   });
 
   describe('GET /health', () => {
-    it('should return health', (done) => {
-      request(app).get('/health').expect('Content-Type', /text/).expect(200, done);
+    it('should return health', done => {
+      request('http://localhost:8010')
+        .get('/health')
+        .expect('Content-Type', /text/)
+        .expect(200, done);
     });
   });
 
   describe('GET /rides', () => {
-    it('should call api rides succesful', (done) => {
-      request(app).get('/rides').expect(200, done);
+    it('should call api rides succesful', done => {
+      request(app)
+        .get('/rides')
+        .expect(200, done);
     });
 
-    it('should return all record if not provide pagination query', (done) => {
+    it('should return all record if not provide pagination query', done => {
       request(app)
         .get('/rides')
         .expect(200)
@@ -79,7 +85,7 @@ describe('API tests', () => {
         });
     });
 
-    it('should return correctly with pagination query', (done) => {
+    it('should return correctly with pagination query', done => {
       const querySetup = [
         {
           limit: 20,
@@ -114,7 +120,7 @@ describe('API tests', () => {
         }
       ];
 
-      querySetup.forEach((item) => {
+      querySetup.forEach(item => {
         request(app)
           .get('/rides')
           .query({ limit: item.limit, page: item.page })
@@ -127,7 +133,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should return error if provide invalid pagination query', (done) => {
+    it('should return error if provide invalid pagination query', done => {
       const querySetup = [
         {
           limit: 'asd',
@@ -139,7 +145,7 @@ describe('API tests', () => {
         }
       ];
 
-      querySetup.forEach((item) => {
+      querySetup.forEach(item => {
         request(app)
           .get('/rides')
           .query({ limit: item.limit, page: item.page })
@@ -158,8 +164,10 @@ describe('API tests', () => {
   });
 
   describe('GET /rides/{id}', () => {
-    it('should call api rides detail succesful', (done) => {
-      request(app).get('/rides/1').expect(200, done);
+    it('should call api rides detail succesful', done => {
+      request(app)
+        .get('/rides/1')
+        .expect(200, done);
     });
   });
 
@@ -174,7 +182,49 @@ describe('API tests', () => {
       end_long: 100
     };
 
-    it('should return error if start latitude and longitude not valid', (done) => {
+    it('should return error if start latitude and longitude type not valid', done => {
+      const invalidStartLatLong = [
+        {
+          start_lat: null,
+          start_long: '90',
+          end_lat: '40',
+          end_long: false
+        },
+        {
+          start_lat: '100',
+          start_long: 90,
+          end_lat: 40,
+          end_long: 100
+        },
+        {
+          start_lat: '123a',
+          start_long: 130,
+          end_lat: 40,
+          end_long: 100
+        },
+        {
+          start_lat: '40',
+          start_long: -150,
+          end_lat: 40,
+          end_long: 100
+        }
+      ];
+
+      invalidStartLatLong.forEach(item => {
+        request(app)
+          .post('/rides')
+          .send({ ...payload, ...item })
+          .expect('Content-Type', 'application/json')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.body).to.have.property('error_code', 'VALIDATION_ERROR');
+          });
+      });
+
+      done();
+    });
+
+    it('should return error if start latitude and longitude not valid', done => {
       const invalidStartLatLong = [
         {
           start_lat: -100,
@@ -202,7 +252,7 @@ describe('API tests', () => {
         }
       ];
 
-      invalidStartLatLong.forEach((item) => {
+      invalidStartLatLong.forEach(item => {
         request(app)
           .post('/rides')
           .send({ ...payload, ...item })
@@ -219,7 +269,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should return error if end latitude and longitude not valid', (done) => {
+    it('should return error if end latitude and longitude not valid', done => {
       const invalidEndLatLong = [
         {
           start_lat: 40,
@@ -247,7 +297,7 @@ describe('API tests', () => {
         }
       ];
 
-      invalidEndLatLong.forEach((item) => {
+      invalidEndLatLong.forEach(item => {
         request(app)
           .post('/rides')
           .send({ ...payload, ...item })
@@ -264,7 +314,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should return error if ride name not valid', (done) => {
+    it('should return error if ride name not valid', done => {
       const invalidRideName = [
         {
           rider_name: null
@@ -283,7 +333,7 @@ describe('API tests', () => {
         }
       ];
 
-      invalidRideName.forEach((item) => {
+      invalidRideName.forEach(item => {
         request(app)
           .post('/rides')
           .send({ ...payload, ...item })
@@ -299,7 +349,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should return error if driverName not valid', (done) => {
+    it('should return error if driverName not valid', done => {
       const invalidDriverName = [
         {
           driver_name: null
@@ -318,7 +368,7 @@ describe('API tests', () => {
         }
       ];
 
-      invalidDriverName.forEach((item) => {
+      invalidDriverName.forEach(item => {
         request(app)
           .post('/rides')
           .send({ ...payload, ...item })
@@ -334,7 +384,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should return error if driverVehicle not valid', (done) => {
+    it('should return error if driverVehicle not valid', done => {
       const invalidDriverVehicle = [
         {
           driver_vehicle: null
@@ -353,7 +403,7 @@ describe('API tests', () => {
         }
       ];
 
-      invalidDriverVehicle.forEach((item) => {
+      invalidDriverVehicle.forEach(item => {
         request(app)
           .post('/rides')
           .send({ ...payload, ...item })
@@ -369,7 +419,7 @@ describe('API tests', () => {
       done();
     });
 
-    it('should create ride success', (done) => {
+    it('should create ride success', done => {
       request(app)
         .post('/rides')
         .send(payload)

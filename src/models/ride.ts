@@ -1,5 +1,5 @@
 export interface Ride {
-  rideID: number;
+  rideID?: number;
   startLat: number;
   startLong: number;
   endLat: number;
@@ -7,5 +7,5 @@ export interface Ride {
   riderName: string;
   driverName: string;
   driverVehicle: string;
-  created: string;
+  created?: string;
 }
